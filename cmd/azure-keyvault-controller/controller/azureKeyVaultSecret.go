@@ -151,6 +151,15 @@ func (c *Controller) syncDeletedAzureKeyVaultSecret(key string) error {
 	return nil
 }
 
+func (c *Controller) syncAzureKeyVaultSecretMetrics(key string) error {
+	err := c.syncAzureKeyVaultSecret(key)
+	if err != nil {
+		syncCounter.WithLabelValues("failed", "AzureKeyVaultSecret").Inc()
+	}
+
+	return err
+}
+
 func (c *Controller) syncAzureKeyVaultSecret(key string) error {
 	var akvs *akv.AzureKeyVaultSecret
 	var err error
@@ -193,6 +202,15 @@ func (c *Controller) syncAzureKeyVaultSecret(key string) error {
 	}
 
 	return nil
+}
+
+func (c *Controller) syncAzureKeyVaultMetrics(key string) error {
+	err := c.syncAzureKeyVault(key)
+	if err != nil {
+		syncCounter.WithLabelValues("failed", "AzureKeyVault").Inc()
+	}
+
+	return err
 }
 
 func (c *Controller) syncAzureKeyVault(key string) error {

@@ -84,11 +84,6 @@ var (
 		Name: "akv2k8s_syncs_total",
 		Help: "The total number of syncs",
 	}, []string{"operation", "object"})
-
-	syncFailures = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "akv2k8s_syncs_failed_total",
-		Help: "The total number of sync failures",
-	}, []string{"operation", "object"})
 )
 
 type NamespaceSelectorLabel struct {
@@ -160,9 +155,9 @@ func NewController(client kubernetes.Interface, akvsClient akvcs.Interface, akvI
 		clock:   &Clock{},
 	}
 
-	controller.akvsCrdQueue = queue.New("AzureKeyVaultSecrets", options.MaxNumRequeues, options.NumThreads, controller.syncAzureKeyVaultSecret)
+	controller.akvsCrdQueue = queue.New("AzureKeyVaultSecrets", options.MaxNumRequeues, options.NumThreads, controller.syncAzureKeyVaultSecretMetrics)
 	controller.akvsCrdDeletionQueue = queue.New("DeletedAzureKeyVaultSecrets", options.MaxNumRequeues, options.NumThreads, controller.syncDeletedAzureKeyVaultSecret)
-	controller.azureKeyVaultQueue = queue.New("AzureKeyVault", options.MaxNumRequeues, options.NumThreads, controller.syncAzureKeyVault)
+	controller.azureKeyVaultQueue = queue.New("AzureKeyVault", options.MaxNumRequeues, options.NumThreads, controller.syncAzureKeyVaultMetrics)
 
 	klog.InfoS("setting up event handlers")
 	controller.initAzureKeyVaultSecret()
